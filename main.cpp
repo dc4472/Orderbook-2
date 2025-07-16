@@ -45,20 +45,20 @@ int main()
 
     // 1. Add an ask at $95 for 600 shares
     std::cout << "Adding ASK: $95 x 600 (OrderId 1001)" << std::endl;
-    auto ask95_600 = std::make_shared<Order>(OrderType::GoodTillCancel, 1001, Side::Sell, 95, 600);
+    auto ask95_600 = std::make_shared<Order>(OrderType::GoodTillCancel, 1001, Side::Sell, 95, 600, false, 101, 201, 301, 57000.0, 10.0, 0, 0, false, nullptr, "txhash1");
     orderbook.AddOrder(ask95_600);
     PrintOrderbookState(orderbook);
 
     // 2. Add a bid at $95 for 350 shares (should partially match)
     std::cout << "Adding BID: $95 x 350 (OrderId 2001) -- should partially match" << std::endl;
-    auto bid95_350 = std::make_shared<Order>(OrderType::GoodTillCancel, 2001, Side::Buy, 95, 350);
+    auto bid95_350 = std::make_shared<Order>(OrderType::GoodTillCancel, 2001, Side::Buy, 95, 350, true, 102, 202, 302, 33250.0, 5.0, 0, 0, false, nullptr, "txhash2");
     auto trades1 = orderbook.AddOrder(bid95_350);
     PrintTrades(trades1);
     PrintOrderbookState(orderbook);
 
     // 3. Add another bid at $95 for 300 shares (should fill the rest and leave 50 unfilled on the bid)
     std::cout << "Adding BID: $95 x 300 (OrderId 2002) -- should fill remaining ask and leave 50 on bid" << std::endl;
-    auto bid95_300 = std::make_shared<Order>(OrderType::GoodTillCancel, 2002, Side::Buy, 95, 300);
+    auto bid95_300 = std::make_shared<Order>(OrderType::GoodTillCancel, 2002, Side::Buy, 95, 300, true);
     auto trades2 = orderbook.AddOrder(bid95_300);
     PrintTrades(trades2);
     PrintOrderbookState(orderbook);
@@ -70,12 +70,12 @@ int main()
 
     // 5. Add and then modify an order
     std::cout << "Adding BID: $94 x 100 (OrderId 2003)" << std::endl;
-    auto bid94_100 = std::make_shared<Order>(OrderType::GoodTillCancel, 2003, Side::Buy, 94, 100);
+    auto bid94_100 = std::make_shared<Order>(OrderType::GoodTillCancel, 2003, Side::Buy, 94, 100, true);
     orderbook.AddOrder(bid94_100);
     PrintOrderbookState(orderbook);
 
     std::cout << "Modifying BID OrderId 2003 to $96 x 120 (should move to new price level)" << std::endl;
-    OrderModify mod2003(2003, Side::Buy, 96, 120);
+    OrderModify mod2003(2003, Side::Buy, 96, 120, true);
     auto trades3 = orderbook.ModifyOrder(mod2003);
     PrintTrades(trades3);
     PrintOrderbookState(orderbook);
@@ -85,14 +85,14 @@ int main()
 
     // 7. Add a FillOrKill order that cannot be fully filled
     std::cout << "Adding FOK BID: $95 x 1000 (OrderId 2004) -- should not be added (not enough ask)" << std::endl;
-    auto fokBid = std::make_shared<Order>(OrderType::FillOrKill, 2004, Side::Buy, 95, 1000);
+    auto fokBid = std::make_shared<Order>(OrderType::FillOrKill, 2004, Side::Buy, 95, 1000, true);
     auto trades4 = orderbook.AddOrder(fokBid);
     PrintTrades(trades4);
     PrintOrderbookState(orderbook);
 
     // 8. Add a FillAndKill order that can be partially filled
     std::cout << "Adding FAK ASK: $96 x 120 (OrderId 1002) -- should match with $96 bid" << std::endl;
-    auto fakAsk = std::make_shared<Order>(OrderType::FillAndKill, 1002, Side::Sell, 96, 120);
+    auto fakAsk = std::make_shared<Order>(OrderType::FillAndKill, 1002, Side::Sell, 96, 120, false);
     auto trades5 = orderbook.AddOrder(fakAsk);
     PrintTrades(trades5);
     PrintOrderbookState(orderbook);

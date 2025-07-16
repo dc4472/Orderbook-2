@@ -19,6 +19,7 @@ struct Information
     Price price_;
     Quantity quantity_;
     OrderId orderId_;
+    bool isMaker_ = false;
 };
 
 using Informations = std::vector<Information>;
@@ -223,7 +224,8 @@ TEST_P(OrderbookTestsFixture, OrderbookTestSuite)
             action.orderId_,
             action.side_,
             action.price_,
-            action.quantity_);
+            action.quantity_,
+            action.isMaker_);
     };
 
     auto GetOrderModify = [](const Information& action)
@@ -234,6 +236,7 @@ TEST_P(OrderbookTestsFixture, OrderbookTestSuite)
             action.side_,
             action.price_,
             action.quantity_,
+            action.isMaker_,
         };
     };
 
